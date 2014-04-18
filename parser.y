@@ -195,7 +195,10 @@ function_decl	: type ID MK_LPAREN param_list MK_RPAREN MK_LBRACE block MK_RBRACE
                     }
                 | VOID ID MK_LPAREN param_list MK_RPAREN MK_LBRACE block MK_RBRACE      
                     {
-                        /*TODO*/
+                        $$ = makeDeclNode(FUNCTION_DECL);
+                        AST_NODE* parameterList = Allocate(PARAM_LIST_NODE);
+                        makeChild(parameterList, $4);
+                        makeFamily($$, 4, makeIDNode("void", NORMAL_ID), makeIDNode($2, NORMAL_ID), parameterList, $7);
                     }
                 | type ID MK_LPAREN  MK_RPAREN MK_LBRACE block MK_RBRACE 
                     {
@@ -205,7 +208,9 @@ function_decl	: type ID MK_LPAREN param_list MK_RPAREN MK_LBRACE block MK_RBRACE
                     }
                 | VOID ID MK_LPAREN  MK_RPAREN MK_LBRACE block MK_RBRACE 
                     {
-                        /*TODO*/
+                        $$ = makeDeclNode(FUNCTION_DECL);
+                        AST_NODE* emptyParameterList = Allocate(PARAM_LIST_NODE);
+                        makeFamily($$, 4, makeIDNode("void", NORMAL_ID), emptyParameterList, parameterList, $6);
                     } 
                 ;
 
@@ -496,11 +501,12 @@ relop_expr	: relop_term
 
 relop_term	: relop_factor 
                 {
-                    /*TODO*/
+                    $$ = $1;
                 }
             | relop_term OP_AND relop_factor
                 {
-                    /*TODO*/
+                    $$ = makeExprNode(BINARY_OPERATION, BINARY_OP_AND);
+                    makeFamily($$, 2, $1, $3);
                 }
             ;
 
@@ -516,27 +522,27 @@ relop_factor	: expr
 
 rel_op		: OP_EQ
                 {
-                    /*TODO*/
+                    $$ = makeExprNode(BINARY_OPERATION, BINARY_OP_EQ);
                 }
             | OP_GE 
                 {
-                    /*TODO*/
+                    $$ = makeExprNode(BINARY_OPERATION, BINARY_OP_GE);
                 }
             | OP_LE 
                 {
-                    /*TODO*/
+                    $$ = makeExprNode(BINARY_OPERATION, BINARY_OP_LE);
                 }
             | OP_NE 
                 {
-                    /*TODO*/
+                    $$ = makeExprNode(BINARY_OPERATION, BINARY_OP_NE);
                 }
             | OP_GT 
                 {
-                    /*TODO*/
+                    $$ = makeExprNode(BINARY_OPERATION, BINARY_OP_GT);
                 }
             | OP_LT 
                 {
-                    /*TODO*/
+                    $$ = makeExprNode(BINARY_OPERATION, BINARY_OP_LT);
                 }
             ;
 
@@ -642,7 +648,7 @@ factor		: MK_LPAREN relop_expr MK_RPAREN
 
 var_ref		: ID 
                 {
-                    /*TODO*/
+                    $$ = makeIDNode($1, NORMAL_ID);
                 }
             | ID dim_list 
                 {
