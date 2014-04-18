@@ -593,11 +593,11 @@ term		: term mul_op factor
 
 mul_op		: OP_TIMES
                 {
-                    /*TODO*/
+                    $$ = makeExprNode(BINARY_OPERATION, BINARY_OP_MUL);
                 }
             | OP_DIVIDE 
                 {
-                    /*TODO*/
+                    $$ = makeExprNode(BINARY_OPERATION, BINARY_OP_DIV);
                 }
             ;
 
