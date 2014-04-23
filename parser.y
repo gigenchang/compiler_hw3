@@ -150,7 +150,7 @@ static inline AST_NODE* makeExprNode(EXPR_KIND exprKind, int operationEnumValue)
 %token ERROR
 %token RETURN
 
-%type <node> program global_decl_list global_decl function_decl block stmt_list decl_list decl var_decl type init_id_list init_id  stmt relop_expr relop_term relop_factor expr term factor var_ref if_blocks if_block
+%type <node> program global_decl_list global_decl function_decl block stmt_list decl_list decl var_decl type init_id_list init_id  stmt relop_expr relop_term relop_factor expr term factor var_ref
 %type <node> param_list param dim_fn expr_null id_list dim_decl cexpr mcexpr cfactor assign_expr_list test assign_expr rel_op relop_expr_list nonempty_relop_expr_list
 %type <node> add_op mul_op dim_list type_decl nonempty_assign_expr_list
 
@@ -453,7 +453,7 @@ stmt		: MK_LBRACE block MK_RBRACE
             | FOR MK_LPAREN assign_expr_list MK_SEMICOLON relop_expr_list MK_SEMICOLON assign_expr_list MK_RPAREN stmt
                 {
 					$$ = makeStmtNode(FOR_STMT);
-					makeFamily($$, 5, $3, $5, $7, $9);
+					makeFamily($$, 4, $3, $5, $7, $9);
                 }
             | var_ref OP_ASSIGN relop_expr MK_SEMICOLON
                 {
@@ -461,11 +461,17 @@ stmt		: MK_LBRACE block MK_RBRACE
 					makeFamily($$, 2, $1, $3);
                 }
             /*TODO: | If Statement */
-            |   if_blocks
+            | IF MK_LPAREN test MK_RPAREN stmt
                 {
-                    $$ = $1;
+                    $$ = makeStmtNode(IF_STMT);
+                    makeFamily($$, 3, $3, $5, Allocate(NUL_NODE));  
                 }
             /*TODO: | If then else */
+            | IF MK_LPAREN test MK_RPAREN stmt ELSE stmt
+                {
+                    $$ = makeStmtNode(IF_STMT);
+                    makeFamily($$, 3, $3, $5, $7);  
+                }  
             /*TODO: | function call */
             | ID MK_LPAREN relop_expr_list MK_RPAREN MK_SEMICOLON      
 				{	
@@ -489,24 +495,6 @@ stmt		: MK_LBRACE block MK_RBRACE
                 }
             ;
 
-if_blocks   : if_block
-			    {
-                    $$ = $1;
-                    makeChild($$, Allocate(NUL_NODE));
-                }
-            |   if_block ELSE stmt
-                {
-                    $$ = $1; 
-                    /*makeChild($$, $3); */
-                }
-            ;
-	
-if_block    : IF MK_LPAREN relop_expr MK_RPAREN /*stmt*/ 
-		        {
-                    $$ = makeStmtNode(IF_STMT);
-                    makeFamily($$, 1, $3);
-                }	
-            ;
 assign_expr_list : nonempty_assign_expr_list 
                      {
 					 	 $$ = $1;	
