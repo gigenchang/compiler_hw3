@@ -424,7 +424,7 @@ init_id		: ID
                 }
             | ID OP_ASSIGN relop_expr 
                 {
-					$$ = makeChild(makeIDNode($1, NORMAL_ID), $3);
+				    $$ = makeChild(makeIDNode($1, NORMAL_ID), $3);
                 }
             ;
 
@@ -445,7 +445,7 @@ stmt		: MK_LBRACE block MK_RBRACE
 					$$ = $2;
                 }
             /*TODO: | While Statement */
-            | WHILE MK_LPAREN relop_expr MK_RPAREN stmt 
+            | WHILE MK_LPAREN test MK_RPAREN stmt 
                 {
                     $$ = makeStmtNode(WHILE_STMT);
                     makeFamily($$, 2, $3, $5);
@@ -497,7 +497,8 @@ stmt		: MK_LBRACE block MK_RBRACE
 
 assign_expr_list : nonempty_assign_expr_list 
                      {
-					 	 $$ = $1;	
+					 	 $$ = Allocate(NONEMPTY_ASSIGN_EXPR_LIST_NODE);
+                         makeChild($$, $1);
                      }
                  |  
                      {
@@ -512,7 +513,7 @@ nonempty_assign_expr_list        : nonempty_assign_expr_list MK_COMMA assign_exp
                                     }
                                  | assign_expr
                                     {
-                                        $$ = makeChild(Allocate(NONEMPTY_ASSIGN_EXPR_LIST_NODE), $1);
+                                        $$ = $1;
                                     }
                                  ;
 
@@ -524,7 +525,8 @@ test		: assign_expr
 
 assign_expr     : ID OP_ASSIGN relop_expr 
                     {
-						$$ = makeSibling( makeIDNode($1, NORMAL_ID), $3);
+                        $$ = makeStmtNode(ASSIGN_STMT);
+                        $$ = makeFamily($$, 2, makeIDNode($1, NORMAL_ID), $3);
                     }
                 | relop_expr
                     {
